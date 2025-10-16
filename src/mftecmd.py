@@ -10,6 +10,8 @@ from celery.utils.log import get_task_logger
 from openrelik_worker_common.file_utils import create_output_file
 from openrelik_worker_common.task_utils import create_task_result, get_input_files
 
+from pathvalidate import sanitize_filename
+
 from .app import celery
 
 # Task name used to register and route the task to the correct queue.
@@ -23,7 +25,7 @@ TASK_METADATA = {
 
 COMPATIBLE_INPUTS = {
     "data_types": [],
-    "mime_types": ["application/octet-stream"],
+    "mime_types": ["application/octet-stream", "text/plain"],
     "filenames": [
         "$Boot",
         "$I30","INDX",
@@ -31,6 +33,7 @@ COMPATIBLE_INPUTS = {
         "$MFT",
         "$Secure_$SDS","$Secure%3A$SDS",
         "$LogFile",
+        ".openrelik-hostname"
         ],
 }
 
@@ -52,16 +55,24 @@ def mftecmd(
             command="",
         )
 
+    # .openrelik-hostname support
+    prefix = ""
+    if (hostname_item := next((f for f in input_files if f.get('display_name') == ".openrelik-hostname"), None)):
+        with open(hostname_item.get('path'),"r", encoding="utf-8") as f:
+            raw_hostname = f.read().strip()
+        prefix = f"{sanitize_filename(raw_hostname)}_"
+
     # Create temporary directory and hard link files for processing
     temp_dir = os.path.join(output_path, uuid4().hex)
     os.mkdir(temp_dir)
-    for file in input_files:
+    # don't run on the .openrelik-hostname file
+    for file in (f for f in input_files if f.get('display_name') != ".openrelik-hostname"):
         filename = os.path.basename(file.get("path"))
         os.link(file.get("path"), f"{temp_dir}/{filename}")
 
         output_file = create_output_file(
             output_path,
-            display_name=f"{file.get('display_name')}_MFTECmd_output.csv",
+            display_name=f"{prefix}{file.get('display_name')}_MFTECmd_output.csv",
             data_type="openrelik:mftecmd:mftecmd",
         )
 

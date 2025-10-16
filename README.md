@@ -12,8 +12,14 @@ If you provide a journal ($J) artifact and an MFT ($MFT) artifact, it will autom
 
 Therefore, this worker does not support running output from multiple hosts at once.
 
+Supports `.openrelik-hostname` files.
+
+Supply a `.openrelik-hostname` file to this worker and it will prefix any output with the included hostname. If you're running an extract from an archive task before this, place your `.openrelik-hostname` file in an archive (eg. `openrelik-config.zip`) and add globs for it (`*.openrelik-hostname`) to your extract from archive task.
+
 ## Deploy
-Add the below configuration to the OpenRelik docker-compose.yml file after updating the `īmage` section to point to the workflow published container.
+Update your `config.env` file to set `OPENRELIK_WORKER_MFTECMD_VERSION` to the tagged release version you want to use.
+
+Add the below configuration to the OpenRelik docker-compose.yml file, you may need to update the `image:` value to point to the container in a  registry.
 
 ```
 openrelik-worker-mftecmd:

@@ -68,7 +68,7 @@ def mftecmd(
             command="",
         )
 
-    # .openrelik-config 'openrelik-hostname' key support
+    # .openrelik-config 'hostname' key support
     prefix = ""
     config_item = next((f for f in input_files if f.get('display_name') == ".openrelik-config"), None)
     if config_item:
@@ -84,11 +84,11 @@ def mftecmd(
 
         except yaml.YAMLError:
             logger.error(".openrelik-config is not a valid YAML file.")
-
         except Exception as e:
             logger.error(f"Error reading .openrelik-config: {e}")
 
         # Pass through .openrelik-config as an output
+        # need to move/rename .openrelik-config to the uuid and extension?
         config_passthrough_file = create_output_file(
             output_path,
             display_name=config_item.get('display_name'),
@@ -102,8 +102,8 @@ def mftecmd(
     # Create temporary directory and hard link files for processing
     temp_dir = os.path.join(output_path, uuid4().hex)
     os.mkdir(temp_dir)
-    # don't run on the .openrelik-hostname file
-    for file in (f for f in input_files if f.get('display_name') != ".openrelik-hostname"):
+    # don't run on the .openrelik-config file
+    for file in (f for f in input_files if f.get('display_name') != ".openrelik-config"):
         filename = os.path.basename(file.get("path"))
         os.link(file.get("path"), f"{temp_dir}/{filename}")
 

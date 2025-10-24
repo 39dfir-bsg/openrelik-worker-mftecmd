@@ -12,9 +12,9 @@ If you provide a journal ($J) artifact and an MFT ($MFT) artifact, it will autom
 
 Therefore, this worker does not support running output from multiple hosts at once.
 
-Supports `.openrelik-hostname` files.
+Supports an `.openrelik-config` files.
 
-Supply a `.openrelik-hostname` file to this worker and it will prefix any output with the included hostname. If you're running an extract from an archive task before this, place your `.openrelik-hostname` file in an archive (eg. `openrelik-config.zip`) and add globs for it (`*.openrelik-hostname`) to your extract from archive task.
+Supply an `.openrelik-config` file to this worker with an `openrelik-hostname:` argument and it will prefix any output with the included hostname. It will also perform passthrough of the `.openrelik-config` file so it can be used in any follow on worker tasks. If you're running an extract from an archive task before this, place your `.openrelik-config` file in an archive (eg. `openrelik-config.zip`) and add globs for it (`*.openrelik-config`) to your extract from archive task.
 
 ## Deploy
 Update your `config.env` file to set `OPENRELIK_WORKER_MFTECMD_VERSION` to the tagged release version you want to use.

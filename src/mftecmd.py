@@ -88,7 +88,6 @@ def mftecmd(
             logger.error(f"Error reading .openrelik-config: {e}")
 
         # Pass through .openrelik-config as an output
-        # need to move/rename .openrelik-config to the uuid and extension?
         config_passthrough_file = create_output_file(
             output_path,
             display_name=config_item.get('display_name'),
@@ -136,7 +135,11 @@ def mftecmd(
             self.send_event("task-progress", data=None)
             time.sleep(INTERVAL_SECONDS)
         
-        output_files.append(output_file.to_dict())
+        # only append file if created
+        # LogFile not supported by tool yet, but it tries to run against it and assumes it works
+        # This leads it to try and collect a file that hasn't been made
+        if os.path.exists(output_file.path):
+            output_files.append(output_file.to_dict())
 
     # Remove temp directory
     if os.path.exists(temp_dir):
